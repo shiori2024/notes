@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成绩案例</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #app {
+            margin: 0 auto;
+            width: 1000px;
+            height: auto;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            margin-top: 30px;
+        }
+
+        .left-main {
+            width: 100%;
+
+            &>table {
+                width: 100%;
+                border-collapse: collapse;
+                border-radius: 5px;
+                box-shadow: 0 0 10px #ccc;
+            }
+
+            &>table>thead>tr {
+                background-color: #4CAF50;
+                color: white;
+                border-bottom: 1px solid #363333;
+                border-right: 1px solid #363333;
+                border-right: none;
+
+            }
+
+            &>table>tfoot>tr,
+            &>table>tbody>tr {
+                border-bottom: 1px solid #363333;
+
+                &:nth-last-child(1) {
+                    line-height: 30px;
+                    text-align: center;
+
+                    &:hover {
+                        background-color: unset;
+                    }
+                }
+            }
+
+            &>table>thead>tr>th,
+            &>table>tbody>tr>th {
+                border-right: 1px solid #363333;
+
+                &:nth-last-child(1) {
+                    border-right: none;
+                }
+            }
+
+            &>table>tbody>tr {
+
+                &:hover {
+                    background-color: #ccc;
+                }
+            }
+
+            &>table>tfoot>tr>td {
+                padding: 50px;
+                text-align: center;
+                color: rgb(203, 200, 199);
+                /* line-height: 50px; */
+            }
+        }
+
+        .red-font {
+            color: red;
+        }
+
+        .right-main {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .form {
+            width: 400px;
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+
+        .subject,
+        .score {
+            margin-bottom: 20px;
+
+            &>input {
+                width: 300px;
+                outline: none;
+                border: none;
+                padding-left: 5px;
+                height: 35px;
+                border: 1px solid #ccc;
+
+                &:focus {
+                    border: 1px solid #6d9ee7;
+                }
+            }
+        }
+
+        .form>button {
+            outline: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            background: #6d9ee7;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="left-main">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>科目</th>
+                            <th>成绩</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody v-if="list.length > 0">
+                        <tr v-for="(item,index) in list" :key="index">
+                            <th>{{index+1}}</th>
+                            <th>{{item.subject}}</th>
+                            <th :class="{ 'red-font': item.score < 60 }">{{item.score}}</th>
+                            <th><a href="" @click.prevent="del(item.id)"><span>删除</span></a></th>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><span>总分：{{total}}</span></td>
+                            <td colspan="2"><span>平均分：{{average}}</span></td>
+                        </tr>
+                    </tbody>
+                    <tfoot v-else>
+                        <tr>
+                            <td colspan="4">暂无数据</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="right-main">
+                <div class="form">
+                    <div class="subject">
+                        <label for="subject">
+                            科目：
+                        </label>
+                        <input type="text" placeholder="请输入科目" v-model.trim="subject">
+                    </div>
+                    <div class="score">
+                        <label for="subject">
+                            成绩：
+                        </label>
+                        <input type="number" @keyup.enter="add" placeholder="请输入成绩" v-model.number="score">
+                    </div>
+                    <button @click="add">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                list: [
+                    { "id": 1, "subject": "语文", "score": 90 },
+                    { "id": 2, "subject": "数学", "score": 50 },
+                    { "id": 3, "subject": "英语", "score": 90 }
+                ],
+                subject: '',
+                score: ''
+            },
+            computed: {
+                total() {
+                    return this.list.reduce((sum, item) => sum + item.score, 0);
+                },
+                average() {
+                    if (this.list.length === 0) {
+                        return 0
+                    }
+                    return (this.total / this.list.length).toFixed(2);
+                }
+            },
+            methods: {
+                del(id) {
+                    this.list = this.list.filter(item => item.id !== id)
+                },
+                add() {
+                    if (this.subject !== '' && this.score !== 'number') {
+                        // this.list.unshift({
+                        //     "id": this.list.length + 1,
+                        //     "subject": this.subject,
+                        //     "score": this.score
+                        // })
+                        this.list.push({
+                            "id": this.list.length + 1,
+                            "subject": this.subject,
+                            "score": this.score
+                        })
+                        this.subject = '';
+                        this.score = '';
+                    } else {
+                        alert('请输入科目和成绩')
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
