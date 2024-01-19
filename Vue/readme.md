@@ -1,5 +1,6 @@
+Vue.js学习记录
 # 开始
-[前端最新Vue2+Vue3基础入门到实战项目全套教程，自学前端vue就选黑马程序员，一套全通关！](https://www.bilibili.com/video/BV1HV4y1a7n4/?p=4&share_source=copy_web&vd_source=95cd608da1e2c1b445ff2d5f43dbdd5a)
+[前端最新Vue2+Vue3基础入门到实战项目全套教程，自学前端vue](https://www.bilibili.com/video/BV1HV4y1a7n4/?p=4&share_source=copy_web&vd_source=95cd608da1e2c1b445ff2d5f43dbdd5a)
 
 ## 通过引入`scrpit`标签，创建一个vue实例
 ```html
@@ -310,7 +311,7 @@ v-model应用表单元素
 ## 案例：成绩案例
 功能： 列表渲染、删除功能、添加功能、统计总分和求平均分功能。 
 ```html
-
+<!-- 略...见目录同名文件 -->
 ```
 
 ## watch
@@ -323,3 +324,41 @@ watch: {
     }
 }
 ```
+
+
+## vue生命周期
+一个vue实例从创建到销毁的整个过程。  
+
+生命周期四个阶段：
+1. 创建阶段：
+响应式数据
+2. 挂载阶段：
+渲染模板
+3. 更新阶段：
+数据更新
+4. 销毁阶段：
+销毁实例
+
+生命周期钩子：
+
+### 案例：小黑记账清单
+源代码见目录同名文件  
+具体实现：
+1. 渲染DOM  
+在methods方法中封装 `getList()` 方法，方便调用  
+通过异步 `axios` 请求API接口获取数据  
+在`created`钩子函数中回调该方法
+2. 添加功能  
+收集表单数据 `v-model`  
+给添加按钮绑定点击事件 `@click`  
+通过异步 `axios` 请求API接口添加数据  
+回调`getList()`方法，重新渲染添加后的数据
+3. 删除功能  
+给删除按钮绑定点击事件 `@click(item.id)` ，并传参循环渲染`v-for`中的当前项的 `id`  
+根据传参`id`请求API接口删除数据  
+4. 饼图渲染  
+通过`Echarts`插件根据获取到的数据动态渲染饼图  
+将`echarts.setOption({...})`方法挂载到`mounted`钩子函数上，并在 `getList()` 方法中配置`setOption()` `data`数据，实现数据实时变化动态渲染饼图。
+
+## 工程化开发
+基于脚手架webpack开发前端项目。  

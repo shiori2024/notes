@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>案例：小黑记账清单</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #app {
+            display: flex;
+            justify-content: center;
+            align-content: center;
+            margin-top: 30px;
+        }
+
+        .left {
+            &>table {
+                width: 100%;
+                border-collapse: collapse;
+
+                &>tfoot>tr,
+                &>tbody>tr,
+                &>thead>tr {
+                    border-bottom: 1px solid #ccc;
+                    text-align: center;
+                    line-height: 30px;
+                }
+
+                &>tbody>tr {
+                    &:hover {
+                        background-color: #ccc;
+                    }
+
+                    &:nth-last-child(1) {
+                        &:hover {
+                            background-color: unset;
+                        }
+                    }
+                }
+            }
+        }
+
+        .form {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+
+            &>button {
+                height: 35px;
+                outline: none;
+                border: none;
+                cursor: pointer;
+                padding: 5px 10px;
+                background: #4b83d6;
+                color: white;
+                border-radius: 2px;
+
+                &:hover {
+                    box-shadow: 1px 1px 1px rgba(89, 149, 240, 0.6);
+                }
+            }
+
+            &>input {
+                width: 300px;
+                outline: none;
+                border: none;
+                padding-left: 5px;
+                height: 35px;
+                border: 1px solid #ccc;
+                margin: 10px;
+
+                &:focus {
+                    border: 1px solid #6d9ee7;
+                }
+            }
+        }
+
+        .del {
+            cursor: pointer;
+            color: #4b83d6;
+            text-decoration: none;
+
+            &:hover {
+                color: #254f8f;
+            }
+        }
+
+        #echart {
+            width: 700px;
+            height: 500px;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="left">
+            <div class="form">
+                <input v-model.trim="name" type="text" placeholder="消费名称">
+                <input v-model.number="price" placeholder="消费价格">
+                <button @click="add">添加账单</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>消费名称</th>
+                        <th>消费价格</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody v-if="list.length > 0">
+                    <tr v-for="(item,index) in list" :key="index">
+                        <td>{{index+1}}</td>
+                        <td>{{item.name}}</td>
+                        <td :class="{ red: item.price > 500 }">{{item.price.toFixed(2)}}</td>
+                        <td><a href="" @click.prevent="del(item.id)" class="del">删除</a></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><span>消费总计：{{total}}</span></td>
+                    </tr>
+                </tbody>
+                <tfoot v-else>
+                    <tr>
+                        <td colspan="4">暂无数据</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div id="echart" v-show="list.length > 0"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        const app = new Vue({
+            el: '#app',
+            data: {
+                name: '',
+                price: '',
+                list: []
+            },
+            computed: {
+                total() {
+                    return this.list.reduce((sum, item) => sum + item.price, 0);
+                }
+            },
+            created() {
+                this.getList()
+            },
+            mounted() {
+                this.myChart = echarts.init(document.getElementById('echart'))
+                let option = {
+                    title: {
+                        text: '消费账单饼图',
+                        subtext: '',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left'
+                    },
+                    series: [
+                        {
+                            name: '消费账单',
+                            type: 'pie',
+                            radius: '50%',
+                            data: [],
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            }
+                        }
+                    ]
+                }
+                this.myChart.setOption(option)
+            },
+            methods: {
+                async getList() {
+                    const res = await axios.get("https://applet-base-api-t.itheima.net/bill", {
+                        params: {
+                            creator: '小张'
+                        }
+                    })
+                    this.list = res.data.data
+                    this.myChart.setOption({
+                        series: [
+                            {
+                                data: this.list.map((item) => {
+                                    return { value: item.price, name: item.name }
+                                }),
+                            }
+                        ]
+                    })
+                },
+                async add() {
+                    const res = await axios.post("https://applet-base-api-t.itheima.net/bill", {
+                        creator: '小张',
+                        name: this.name,
+                        price: this.price
+                    })
+                    this.name = ''
+                    this.price = ''
+                    this.getList()
+                },
+                async del(id) {
+                    const res = await axios.delete(`https://applet-base-api-t.itheima.net/bill/${id}`)
+                    this.getList()
+                }
+            },
+        })
+    </script>
+</body>
+
+</html>
