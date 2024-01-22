@@ -198,27 +198,25 @@
                     this.myChart.setOption({
                         series: [
                             {
-                                data: this.list.map((item) => {
-                                    return { value: item.price, name: item.name }
-                                }),
+                                data: this.list.map((item) => ({ value: item.price, name: item.name })),
                             }
                         ]
                     })
                 },
                 async add() {
-                    const res = await axios.post("https://applet-base-api-t.itheima.net/bill", {
-                        creator: '小张',
-                        name: this.name,
-                        price: this.price
-                    })
-                    this.name = ''
-                    this.price = ''
-                    this.getList()
-                },
+            const res = await axios.post("https://applet-base-api-t.itheima.net/bill", {
+                creator: '小张',
+                name: this.name,
+                price: this.price
+            })
+            this.name = ''
+            this.price = ''
+            this.getList()
+        },
                 async del(id) {
-                    const res = await axios.delete(`https://applet-base-api-t.itheima.net/bill/${id}`)
-                    this.getList()
-                }
+            const res = await axios.delete(`https://applet-base-api-t.itheima.net/bill/${id}`)
+            this.getList()
+        }
             },
         })
     </script>

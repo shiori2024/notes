@@ -362,3 +362,12 @@ watch: {
 
 ## 工程化开发
 基于脚手架webpack开发前端项目。  
+组件化项目  
+
+[vue2组件化实现todolist](https://github.com/shiori2024/todolist)
+通过组件间通信的方式，使子组件能够通过 `props` 得到数据，子组件要修改数据通过 `$emit` 传回给父组件。而根据这种特点，兄弟组件间可以使用共同的父组件数据。  
+
+### 两种组件关系，对应的组件通信
+父子关系 -> `props` 和 `$emit`  
+非父子关系 -> `provide` 和 `inject` 或 `eventbus`  
+通用方案 -> vuex 或 pinia  
